@@ -42,6 +42,9 @@ class HypersphericalPredictor(base.BaseEstimator):
 
         m = len(self.train)
 
+        if m == 0:
+            raise Exception('Training set is empty.')
+
         # Calcul de la matrice K et de la matrice comprenant seulement k(x_i, x_i) pour tout i.
         K = self.kernel_func(self.train, self.train, **self.kwargs)
         Kii = [K[i][i] for i in xrange(m)]
@@ -73,13 +76,19 @@ class HypersphericalPredictor(base.BaseEstimator):
 
         self.alpha = np.array(alpha).flatten()
 
+        """
         # On supprime les petites valeurs de alpha pour garder seulement celle qui sont significatives.
         self.alpha = np.array([a if a >= 10**-3 else 0 for a in self.alpha])
         nonzero_alpha = np.flatnonzero(self.alpha)
-        self.train = self.train[nonzero_alpha]
-        self.alpha = self.alpha[nonzero_alpha]
-        self.alpha = self.alpha / sum(self.alpha) # \sum \alpha_i = 1
 
+        if nonzero_alpha.shape[0] < self.alpha.shape[0]:
+            self.train = self.train[nonzero_alpha]
+
+            #self.alpha = self.alpha[nonzero_alpha]
+            #self.alpha = self.alpha / sum(self.alpha) # \sum \alpha_i = 1
+
+            return self.fit(self.train)
+        """
         return self
 
     def predict(self, X):
