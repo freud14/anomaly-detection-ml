@@ -1,42 +1,70 @@
 import numpy as np
+import re
 
 def load_packets():
+    return load_csv_file('kddcup.data_10_percent_corrected')
+
+def load_arrhythmia():
+    return load_csv_file('data/arrhythmia.data')
+
+def load_breastcancerwisconsin():
+    return load_csv_file('data/breast-cancer-wisconsin.data')
+
+def load_ecoli():
+    return load_csv_file('data/ecoli.data', regexSeparator='\\s*')
+
+def load_glass():
+    return load_csv_file('data/glass.data')
+
+def load_iris():
+    return load_csv_file('data/iris.data')
+
+def load_liver():
+    return load_csv_file('data/liver.data')
+
+def load_csv_file(filename, regexSeparator=','):
     np.random.seed(42)
 
-    with open('kddcup.data_10_percent_corrected', 'r') as f:
+    with open(filename, 'r') as f:
         lines = f.readlines()
 
     X = []
     Y = []
-    protocol_type_dict = {}
-    service_dict = {}
-    sf_dict = {}
-    class_dict = {'normal':0}
+
+    text_features = {}
+    i = 0
+    first_example = re.split(regexSeparator, lines[i].strip(' \t\n\r.'))
+    while '?' in first_example:
+        i += 1
+        first_example = re.split(regexSeparator, lines[i].strip(' \t\n\r.'))
+    del i
+    for j, feature in enumerate(first_example):
+        try:
+            float(feature)
+        except ValueError:
+            text_features[j] = {}
+    del j
 
     np.random.shuffle(lines)
     for i, line in enumerate(lines):
-        x = line.strip(' \t\n\r.').split(',')
+        x = re.split(regexSeparator, line.strip(' \t\n\r.'))
 
-        if protocol_type_dict.get(x[1]) is None:
-            protocol_type_dict[x[1]] = len(protocol_type_dict)
+        for j, feature in enumerate(x):
+            if '?' in x:
+                continue
 
-        if service_dict.get(x[2]) is None:
-            service_dict[x[2]] = len(service_dict)
+            if j in text_features:
+                if text_features[j].get(x[j]) is None:
+                    text_features[j][x[j]] = len(text_features[j])
+                x[j] = text_features[j][x[j]]
 
-        if sf_dict.get(x[3]) is None:
-            sf_dict[x[3]] = len(sf_dict)
-
-        if class_dict.get(x[-1]) is None:
-            class_dict[x[-1]] = len(class_dict)
-
-        x[1] = protocol_type_dict[x[1]]
-        x[2] = service_dict[x[2]]
-        x[3] = sf_dict[x[3]]
-        x[-1] = class_dict[x[-1]]
-        for i, feature in enumerate(x):
-            x[i] = float(x[i])
+            x[j] = float(x[j])
 
         X.append(x[:-1])
         Y.append(x[-1])
 
-    return X, Y
+    class_dict = None
+    if len(first_example) - 1 in text_features:
+        class_dict = text_features[len(first_example) - 1]
+        del text_features[len(first_example) - 1]
+    return X, Y, text_features, class_dict

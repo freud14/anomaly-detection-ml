@@ -11,13 +11,13 @@ nbTest = 2000
 
 
 print "Beginning of loading."
-X, Y = load_packets();
+X, Y, text_features, class_dict = load_packets();
 
 #nbTest = len(X) - nbTrain
 
 X = preprocessing.normalize(X)
-anomaly = [x for x, y in zip(X, Y) if y != 0]
-normal = [x for x, y in zip(X, Y) if y == 0]
+anomaly = [x for x, y in zip(X, Y) if y != class_dict['normal']]
+normal = [x for x, y in zip(X, Y) if y == class_dict['normal']]
 
 train = normal[:nbTrain]
 test_normal = normal[nbTrain:nbTrain + nbTest]
