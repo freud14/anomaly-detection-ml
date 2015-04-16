@@ -2,7 +2,7 @@ import numpy as np
 import re
 
 def load_packets():
-    return load_csv_file('kddcup.data_10_percent_corrected')
+    return load_csv_file('data/kddcup.data_10_percent_corrected')
 
 def load_arrhythmia():
     return load_csv_file('data/arrhythmia.data')
