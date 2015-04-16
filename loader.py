@@ -31,42 +31,62 @@ def load_csv_file(filename, regexSeparator=','):
     X = []
     Y = []
 
+    splitted_lines = [re.split(regexSeparator, line.strip(' \t\n\r.')) for line in lines]
+
+    text_features = create_text_features_dict(splitted_lines)
+    unknownIndexSet = get_unknown_feature_index_set(splitted_lines)
+
+    np.random.shuffle(splitted_lines)
+    for i, line in enumerate(splitted_lines):
+        if '' in line:
+            continue
+
+        new_line = []
+        for j, feature in enumerate(line):
+            if j in unknownIndexSet:
+                continue
+
+            if j in text_features:
+                if text_features[j].get(line[j]) is None:
+                    text_features[j][line[j]] = len(text_features[j])
+                line[j] = text_features[j][line[j]]
+
+            new_line.append(float(line[j]))
+
+        X.append(new_line[:-1])
+        Y.append(new_line[-1])
+
+    class_dict = get_class_dict(splitted_lines, text_features)
+    return X, Y, text_features, class_dict
+
+def get_unknown_feature_index_set(splitted_lines):
+    unknownIndexSet = set()
+    for i, line in enumerate(splitted_lines):
+        for j, feature in enumerate(line):
+            if feature == '?':
+                unknownIndexSet.add(j)
+    return unknownIndexSet
+
+def create_text_features_dict(splitted_lines):
     text_features = {}
     i = 0
-    first_example = re.split(regexSeparator, lines[i].strip(' \t\n\r.'))
+    first_example = splitted_lines[i]
     while '?' in first_example:
         i += 1
-        first_example = re.split(regexSeparator, lines[i].strip(' \t\n\r.'))
-    del i
+        first_example = splitted_lines[i]
+
     for j, feature in enumerate(first_example):
         try:
             float(feature)
         except ValueError:
             text_features[j] = {}
-    del j
 
-    np.random.shuffle(lines)
-    for i, line in enumerate(lines):
-        x = re.split(regexSeparator, line.strip(' \t\n\r.'))
+    return text_features
 
-        for j, feature in enumerate(x):
-            if '?' in x:
-                continue
-            if '' in x:
-                continue
-
-            if j in text_features:
-                if text_features[j].get(x[j]) is None:
-                    text_features[j][x[j]] = len(text_features[j])
-                x[j] = text_features[j][x[j]]
-
-            x[j] = float(x[j])
-
-        X.append(x[:-1])
-        Y.append(x[-1])
-
+def get_class_dict(splitted_lines, text_features):
     class_dict = None
-    if len(first_example) - 1 in text_features:
-        class_dict = text_features[len(first_example) - 1]
-        del text_features[len(first_example) - 1]
-    return X, Y, text_features, class_dict
+    n = len(splitted_lines[0])
+    if n - 1 in text_features:
+        class_dict = text_features[n - 1]
+        del text_features[n - 1]
+    return class_dict
