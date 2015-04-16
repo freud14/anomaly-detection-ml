@@ -3,7 +3,7 @@
 import numpy as np
 from sklearn import datasets, preprocessing, svm, multiclass
 from hyperspherical import HypersphericalPredictor
-from loader import load_packets
+from loader import *
 from util import *
 
 nbTrain = 1000
@@ -11,6 +11,13 @@ nbTest = 2000
 
 
 print "Beginning of loading."
+#X, Y, text_features, class_dict = load_arrhythmia();
+#X, Y, text_features, class_dict = load_breastcancerwisconsin();
+#X, Y, text_features, class_dict = load_ecoli();
+#X, Y, text_features, class_dict = load_glass();
+#X, Y, text_features, class_dict = load_iris();
+#X, Y, text_features, class_dict = load_liver();
+
 X, Y, text_features, class_dict = load_packets();
 
 #nbTest = len(X) - nbTrain

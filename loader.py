@@ -52,6 +52,8 @@ def load_csv_file(filename, regexSeparator=','):
         for j, feature in enumerate(x):
             if '?' in x:
                 continue
+            if '' in x:
+                continue
 
             if j in text_features:
                 if text_features[j].get(x[j]) is None:
