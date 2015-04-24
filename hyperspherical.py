@@ -3,13 +3,14 @@
 from cvxopt import matrix
 from cvxopt.solvers import qp
 from cvxopt.blas import dot
+from cvxopt import solvers
 import numpy as np
 from util import fullprint # Pour imprimer un Numpy Array au complet
 from sklearn import metrics, base
 
 class HypersphericalPredictor(base.BaseEstimator):
-    def __init__(self, C=1.0, kernel='rbf', degree=None, gamma=None, coef0=None):
-        self.C = C
+    def __init__(self, nu=0.02, kernel='rbf', degree=None, gamma=None, coef0=None):
+        self.nu = nu
         self.kernel = kernel
         if callable(kernel):
             self.kernel_func = kernel
@@ -45,6 +46,8 @@ class HypersphericalPredictor(base.BaseEstimator):
         if m == 0:
             raise Exception('Training set is empty.')
 
+        C = 1. / (m * self.nu)
+
         # Calcul de la matrice K et de la matrice comprenant seulement k(x_i, x_i) pour tout i.
         K = self.kernel_func(self.train, self.train, **self.kwargs)
         Kii = [K[i][i] for i in xrange(m)]
@@ -59,7 +62,7 @@ class HypersphericalPredictor(base.BaseEstimator):
 
         # 0 <= alpha <= C
         G = matrix(np.append(-np.eye(m), np.eye(m), axis=0))
-        h = matrix(np.append(np.full(m, 0), np.full(m, self.C)))
+        h = matrix(np.append(np.full(m, 0), np.full(m, C)))
 
         # \sum \alpha_i = 1
         A = matrix(1.0, (1, m))
@@ -67,6 +70,7 @@ class HypersphericalPredictor(base.BaseEstimator):
 
         # On demande au solveur de résoudre le problème.
         # On met P et q négatif parce qu'il s'agit d'une minimisation.
+        solvers.options['show_progress'] = False
         alpha = qp(-P, -q, G, h, A, b)['x']
 
         # Calcul de la norme L2 du centre c de l'hypersphère
