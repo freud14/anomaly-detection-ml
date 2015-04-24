@@ -52,6 +52,9 @@ class Validator:
         return self._validate_anomaly_detector('result/one_class_svm/' + dataset, svm.OneClassSVM, nu_range, gamma_range)
 
     def _validate_anomaly_detector(self, filename, predictor, nu_range, gamma_range):
+        list_nu = []
+        list_risk = []
+
         test = (-1, -1, -1, -1)
 
         best_risk_valid = -1
@@ -81,6 +84,8 @@ class Validator:
                         test = (nu, gamma, np_valid, risk_np)
 
             print (nu, best_gamma_np, best_np_valid, best_risk_np)
+            list_nu.append(nu)
+            list_risk.append(best_risk_np)
 
             if best_risk_valid == -1 or best_risk_np < best_risk_valid:
                 best_risk_valid = best_risk_np
@@ -98,7 +103,7 @@ class Validator:
 
         self._generate_result_file(filename, best_nu, best_gamma, risk_test, risk_bound_test)
 
-        return best_nu, best_gamma, best_risk_valid, risk_test, risk_bound_test
+        return best_nu, best_gamma, best_risk_valid, risk_test, risk_bound_test, list_nu, list_risk
 
     def svc_biclass(self, dataset, nu_range, gamma_range):
         best_risk_valid = -1

@@ -5,6 +5,8 @@ from sklearn import preprocessing
 from loader import load_packets
 from test import Tester
 from validate import Validator
+from run_valid import validate
+
 
 nbTrain = 1000
 nbTest = 2000
