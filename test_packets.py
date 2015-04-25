@@ -14,7 +14,7 @@ nbTest = 2000
 
 print "Beginning of loading."
 X, Y, text_features, class_dict = load_packets();
-X, Y = X[:8000], Y[:8000] # On ne prend pas tout le dataset
+X, Y = X[:4000], Y[:4000] # On ne prend pas tout le dataset
 normal_class = class_dict['normal']
 
 #nbTest = len(X) - nbTrain

@@ -12,16 +12,19 @@ def validate(name, X, Y, normal_class):
     gamma_range = np.logspace(-5, 4, 10)
     validator = Validator(X, Y, normal, y_normal, anomaly, y_anomaly)
 
+    """
     hypersphere_valid = validator.hyperspherical_predictor(name, nu_range, gamma_range)
-    print hypersphere_valid[:-2]
+    print hypersphere_valid[:-3]
     one_class_svm_valid = validator.one_class_svm(name, nu_range, gamma_range)
-    print one_class_svm_valid[:-2]
+    print one_class_svm_valid[:-3]
 
-    plt.plot(hypersphere_valid[-2], hypersphere_valid[-1])
-    plt.plot(one_class_svm_valid[-2], one_class_svm_valid[-1])
+    plt.plot(hypersphere_valid[-3], hypersphere_valid[-2], 'b')
+    plt.plot(hypersphere_valid[-3], hypersphere_valid[-1], 'b--')
+    plt.plot(one_class_svm_valid[-3], one_class_svm_valid[-2], 'g')
+    plt.plot(one_class_svm_valid[-3], one_class_svm_valid[-1], 'g--')
     #plt.show()
     plt.savefig('graphs/' + name + '.png')
-
+    """
     print validator.svc_biclass(name, nu_range, gamma_range)
     print validator.multiclass_hyperspherical_predictor(name, nu_range, gamma_range)
     print validator.multiclass_one_class_svm(name, nu_range, gamma_range)
